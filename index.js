@@ -1,44 +1,51 @@
-import React,{useState,useCallBack,useEffect} from 'react';
-import ReactDom from 'react-dom';
-import {csv,arc,pie,scaleBand,scaleLinear,max} from 'd3';
-
-
-const csvUrl =
-  'https://gist.githubusercontent.com/curran/0ac4077c7fc6390f5dd33bf5c06cb5ff/raw/605c54080c7a93a417a3cea93fd52e7550e76500/UN_Population_2019.csv';
-
+import React, { useState, useCallback, useEffect } from 'react';
+import ReactDOM from 'react-dom';
+import { csv, arc, pie, scaleBand, scaleLinear, max } from 'd3';
+import { useData } from './useData';
+import { AxisBottom } from './AxisBottom';
+import { AxisLeft } from './AxisLeft';
+import { Marks } from './Marks';
 
 const width = 960;
 const height = 500;
-const margin = {top:20,right:20,bottom:20,left:20};
+const margin = { top: 20, right: 20, bottom: 20, left: 200 };
 
-const app =()=>{
-  const [data,setData] = useState(null);
+const App = () => {
+  const data = useData();
 
-  useEffect(()=>{
-    const row = d=>{
-      d.Population = +d['2020'];
-      return d;
-    };
-    csv(csvUrl,row).then(setData);
-  },[]);
-
-  if (!data){
+  if (!data) {
     return <pre>Loading...</pre>;
   }
-const innerHeight = height-margin.top-margin.bottom;
-const innerWidth = width-margin.left - margin.right;
-    
-const yScale = d3.scaleBand()
-    .domain(data.map((d) => d.Country))
+
+  const innerHeight = height - margin.top - margin.bottom;
+  const innerWidth = width - margin.left - margin.right;
+
+  const yValue = d => d.Country;
+  const xValue = d => d.Population;
+
+  const yScale = scaleBand()
+    .domain(data.map(yValue))
     .range([0, innerHeight]);
 
-const xScale = d3.scaleLinear()
-    .domain([0, d3.max(data, (d) => d.Population)])
+  const xScale = scaleLinear()
+    .domain([0, max(data, xValue)])
     .range([0, innerWidth]);
 
-return (
-  <svg width={width} height={height}>
-  {data.map(d=><rect x={0} y={yScale(d.Country)} width={xScale(d.Population)} height={yScale.bandwidth()} />)}</svg>
-);
-
+  return (
+    <svg width={width} height={height}>
+      <g transform={`translate(${margin.left},${margin.top})`}>
+        <AxisBottom xScale={xScale} innerHeight={innerHeight} />
+        <AxisLeft yScale={yScale} />
+        <Marks
+          data={data}
+          xScale={xScale}
+          yScale={yScale}
+          xValue={xValue}
+          yValue={yValue}
+        />
+      </g>
+    </svg>
+  );
 };
+const rootElement = document.getElementById('root');
+ReactDOM.render(<App />, rootElement);
