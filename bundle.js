@@ -26,8 +26,8 @@
   const AxisBottom = ({ xScale, innerHeight }) =>
     xScale.ticks().map(tickValue => (
       React.createElement( 'g', { key: tickValue, transform: `translate(${xScale(tickValue)},0)` },
-        React.createElement( 'line', { y2: innerHeight, stroke: "black" }),
-        React.createElement( 'text', { style: { textAnchor: 'middle' }, dy: ".71em", y: innerHeight + 3 },
+        React.createElement( 'line', { y2: innerHeight, stroke: "red" }),
+        React.createElement( 'text', { style: { textAnchor: 'middle' }, dy: ".81em", y: innerHeight + 3 },
           tickValue
         )
       )
